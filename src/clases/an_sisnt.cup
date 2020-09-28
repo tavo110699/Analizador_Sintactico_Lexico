@@ -1,0 +1,84 @@
+package calculadora_jflex_cup; 
+
+/* Definición de paquete e importación de paquetes */
+import java_cup.runtime.*;
+import java.io.FileReader;
+   
+/* Codigo de usuario, se copia integramente a la clase final (Parser). Se agrega el manejo de errores. */
+
+parser code {:
+    
+    /* Reporte de error encontrado. */
+    public void report_error(String message, Object info) {
+        StringBuilder m = new StringBuilder("Error");
+        if (info instanceof java_cup.runtime.Symbol) {
+            java_cup.runtime.Symbol s = ((java_cup.runtime.Symbol) info);
+            if (s.left >= 0) {                
+                m.append(" in line "+(s.left+1));
+                if (s.right >= 0)
+                    m.append(", column "+(s.right+1));
+            }
+        }
+        m.append(" : "+message);
+        System.err.println(m);
+    }
+   
+    /* Cuando se encuentra un error de donde el sistema no puede
+        recuperarse, se lanza un error fatal. Se despliega el mensaje
+        de error y se finaliza la ejecucion. */
+    public void report_fatal_error(String message, Object info) {
+        report_error(message, info);
+        System.exit(1);
+    }
+
+    /* Metodo main para garantizar la ejecucion del analizador
+       lexico y sintactico, ademas que se pase como parametro la tabla
+       de simbolos correspondiente. */
+    public static void main(String[] args){
+        try {
+            AnalizadorSintactico asin = new AnalizadorSintactico(
+                    new AnalizadorLexico( new FileReader(args[0])));
+            Object result = asin.parse().value;
+            System.out.println("\n*** Resultados finales ***");
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+:};
+   
+   
+/* Declaración de símbolos terminales y no terminales */
+   
+/* Terminales */
+terminal           SEMI, OP_SUMA, OP_RESTA, OP_MULT, PARENIZQ, PARENDER;
+terminal Integer   ENTERO;
+   
+/* No terminales */
+non terminal Object     expr_list, expr_part;
+non terminal Integer    expr, factor, termino;
+   
+
+/* Precedencia y asociatividad de las declaraciones */
+
+  /*precedence left OP_SUMA, OP_RESTA; 
+  precedence left OP_MULT;*/
+
+
+/* Definición del símbolo inicial de la gramática y las reglas de producción */
+   
+    expr_list ::= expr_list expr_part 
+                | expr_part
+                | error;
+
+expr_part ::= expr:e {:System.out.println(" = " + e);:} SEMI;
+
+
+         expr ::=  expr:e OP_SUMA factor:f {:RESULT = new Integer(e.intValue() + f.intValue());:}
+                |  expr:e OP_RESTA factor:f {:RESULT = new Integer(e.intValue() - f.intValue());:}
+                |  factor:n {:RESULT = n;:};
+
+       factor ::=  factor:f OP_MULT termino:e {:RESULT = new Integer(f.intValue() * e.intValue());:}
+                |  termino:t {:RESULT = t;:};
+
+      termino ::=  PARENIZQ expr:e PARENDER {:RESULT = e;:}
+                |  ENTERO:e {:RESULT = e;:}; 
