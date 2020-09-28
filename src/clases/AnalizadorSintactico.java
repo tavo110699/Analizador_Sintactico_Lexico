@@ -14,6 +14,7 @@ import java.io.FileReader;
   */
 public class AnalizadorSintactico extends java_cup.runtime.lr_parser {
 
+
   /** Default constructor. */
   public AnalizadorSintactico() {super();}
 
@@ -109,21 +110,28 @@ public class AnalizadorSintactico extends java_cup.runtime.lr_parser {
 
 
 
-    
+    public static StringBuilder m = new StringBuilder();
+    JFAnaliz_Lex_Sintac main = new JFAnaliz_Lex_Sintac();
     /* Reporte de error encontrado. */
     public void report_error(String message, Object info) {
-        StringBuilder m = new StringBuilder("Error");
+        StringBuilder m2 = new StringBuilder("Error");
         if (info instanceof java_cup.runtime.Symbol) {
             java_cup.runtime.Symbol s = ((java_cup.runtime.Symbol) info);
             if (s.left >= 0) {                
-                m.append(" in line "+(s.left+1));
+                m2.append(" in line "+(s.left+1));
                 if (s.right >= 0)
-                    m.append(", column "+(s.right+1));
+                    m2.append(", column "+(s.right+1));
             }
         }
-        m.append(" : "+message);
-        System.err.println(m);
+        m2.append(" : "+message);
+        System.err.println(m2);
+   m = m2;
+   
     }
+    public String obtenerTexto (){
+{
+	return m.toString();
+}}
    
     /* Cuando se encuentra un error de donde el sistema no puede
         recuperarse, se lanza un error fatal. Se despliega el mensaje
@@ -152,7 +160,7 @@ public class AnalizadorSintactico extends java_cup.runtime.lr_parser {
 /** Cup generated class to encapsulate user supplied action code.*/
 class CUP$AnalizadorSintactico$actions {
   private final AnalizadorSintactico parser;
-
+    public static String ResultOP = "";
   /** Constructor */
   CUP$AnalizadorSintactico$actions(AnalizadorSintactico parser) {
     this.parser = parser;
@@ -287,6 +295,10 @@ class CUP$AnalizadorSintactico$actions {
 		int eright = ((java_cup.runtime.Symbol)CUP$AnalizadorSintactico$stack.peek()).right;
 		Integer e = (Integer)((java_cup.runtime.Symbol) CUP$AnalizadorSintactico$stack.peek()).value;
 System.out.println(" = " + e);
+          String ResulOPlocal = " = " + e;
+          ResultOP = ResulOPlocal;
+          
+
               CUP$AnalizadorSintactico$result = parser.getSymbolFactory().newSymbol("NT$0",5, ((java_cup.runtime.Symbol)CUP$AnalizadorSintactico$stack.peek()), ((java_cup.runtime.Symbol)CUP$AnalizadorSintactico$stack.peek()), RESULT);
             }
           return CUP$AnalizadorSintactico$result;
